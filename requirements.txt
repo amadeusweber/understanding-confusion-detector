@@ -1,3 +1,4 @@
+hampel
 jupyter
 matplotlib
 numpy
