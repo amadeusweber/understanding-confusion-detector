@@ -1,3 +1,10 @@
+# Machine specific configurations
+configuration/*
+!configuration/default.conf
+
+# VS code
+.vscode
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

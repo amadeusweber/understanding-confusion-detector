@@ -19,3 +19,18 @@ All required packages are listed in the [requirements.txt](requirements.txt)
 ```bash
 pip install -r requirements.txt
 ```
+
+# Configuration
+Default configuration is provided by [configuration/default.conf](configuration/default.conf). Default values are overwtitten by host machine specific configurations located at `configurations/[os.uname().nodename].conf`. Create the host machine specific file and only modify the sections and variables specific to the host machine.
+
+**Example**
+```conf
+[Dataset]
+path-root     = /vol/dataset/
+...
+```
+
+**Patterns**
+In the config file includes file naming patterns.
+These are used to be filled with a specific value:
+`file-pattern = data_%s.csv` has the placeholder `%s` variable formatted as string.
