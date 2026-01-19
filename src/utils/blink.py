@@ -46,13 +46,15 @@ def annotate_blink(df:pd.DataFrame, col_au_blink:str, col_timestamp:str,
     # return augmented df
     return df
 
-def blink_processor(df:pd.DataFrame, col_au_blink:str, col_timestamp:str) -> pd.DataFrame:
+def blink_processor(df:pd.DataFrame, col_au_blink:str, col_timestamp:str,
+                    filter_window_size:int=17, filter_n_sigma:float=3.0) -> pd.DataFrame:
     # decompose by participnat
     return pd.concat(
         # decompose by condition to obtain recording
         pd.concat(
             # add blink data
-            annotate_blink(recording, col_au_blink, col_timestamp)
+            annotate_blink(recording, col_au_blink, col_timestamp,
+                           filter_window_size, filter_n_sigma)
             for _, recording in participant.groupby('condition')
         )
         for _, participant in df.groupby('token')
