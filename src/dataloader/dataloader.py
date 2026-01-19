@@ -46,10 +46,29 @@ class LazyCachedDataLoader:
         )
     
     @cache
+    def _filename_state(self, token, condition, state) -> str:
+        assert token in self._tokens
+        assert condition in self._conditions
+        assert state in self._states
+
+        return os.path.join(
+            self._source,
+            condition,
+            state,
+            token + '.csv'
+        )
+    
+    @cache
     def get(self, token:str, condition:str, state:str) -> pd.DataFrame:
         return pd.read_csv(
             self._filename(token, condition, state)
         ).assign(token=token,condition=condition,state=state)
+    
+    def get_recording(self, token:str, condition:str) -> pd.DataFrame:
+        return pd.concat(
+            self.get(token, condition, s)
+            for s in self._states
+        )
     
     def get_windows(self, token:str, condition:str, state:str) -> tuple[pd.DataFrame]:
         return self._segment(self.get(token, condition, state))
