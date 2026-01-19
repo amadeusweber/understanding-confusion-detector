@@ -2,6 +2,9 @@
 configuration/*
 !configuration/default.conf
 
+# processed data
+.data*
+
 # VS code
 .vscode
 
