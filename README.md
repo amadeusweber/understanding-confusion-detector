@@ -34,3 +34,6 @@ path-root     = /vol/dataset/
 In the config file includes file naming patterns.
 These are used to be filled with a specific value:
 `file-pattern = data_%s.csv` has the placeholder `%s` variable formatted as string.
+
+# Usage
+All experiemnts were conducted using the notebooks, provided in the [notebooks/](./notebooks/) directory.
