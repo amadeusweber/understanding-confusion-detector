@@ -24,9 +24,12 @@ class DataLoaderFull(DataLoaderBase):
         data = self._dl_record.load(token, condition)
         # write state data
         for state in self._states:
-            data[f"state_{state}"] = data[self._col_join].isin(
-                self._dl_state.load(token, condition, state).get(self._col_join, [])
-            )
+            try:
+                data[f"state_{state}"] = data[self._col_join].isin(
+                    self._dl_state.load(token, condition, state).get(self._col_join, [])
+                )
+            except FileNotFoundError:
+                data[f"state_{state}"] = False
         
         return data.assign(token=token, condition=condition)
 

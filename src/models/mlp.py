@@ -18,36 +18,55 @@ class MultiLabelMLP(nn.Module):
         layers = []
         layers.append(nn.Flatten())
         in_features = input_size
-        
         for layer_size in self._hidden_layers:
             layers.append(nn.Linear(in_features, layer_size))
             layers.append(nn.ReLU())
             in_features = layer_size
-            
         self.network = nn.Sequential(*layers)
         self.output_layer = nn.Linear(self._hidden_layers[-1], num_classes)
         self.to(self._device)
 
-    def forward(self, x: torch.Tensor):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.output_layer(self.network(x))
 
-    def fit(self, X: np.ndarray, y: np.ndarray, epochs: int = 50, batch_size: int = 1000):
+    def fit(self, X: np.ndarray, y: np.ndarray, 
+            min_epochs: int = 20, max_epochs: int = 100, batch_size: int = 1000, 
+            patience: int = 5):
         input_size = np.prod(X.shape[1:])
         num_classes = y.shape[1]
         self.build_model(input_size, num_classes)
+        
         X_tensor = torch.tensor(X, dtype=torch.float32).to(self._device)
         y_tensor = torch.tensor(y, dtype=torch.float32).to(self._device)
+        
         optimizer = optim.Adam(self.parameters())
         criterion = nn.BCEWithLogitsLoss()
+
+        best_train_loss = float('inf')
+        epochs_without_improvement = 0
         
-        for epoch in range(epochs):
+        for epoch in range(max_epochs):
+            self.train()
             for i in range(0, len(X_tensor), batch_size):
                 optimizer.zero_grad()
                 outputs = self.forward(X_tensor[i:i + batch_size])
                 loss = criterion(outputs, y_tensor[i:i + batch_size])
                 loss.backward()
                 optimizer.step()
-            print(f'Epoch {epoch + 1}/{epochs}, Loss: {loss.item()}')
+
+            train_loss = loss.item()
+            print(f'Epoch {epoch + 1}/{max_epochs}, Train Loss: {train_loss}')
+
+            # Early stopping logic
+            if train_loss < best_train_loss:
+                best_train_loss = train_loss
+                epochs_without_improvement = 0
+            else:
+                epochs_without_improvement += 1
+
+            if epoch > min_epochs and epochs_without_improvement >= patience:
+                print(f'Early stopping at epoch {epoch + 1}')
+                break
 
     def predict(self, X: np.ndarray, threshold: float = 0.5, batch_size: int = 1000) -> np.ndarray:
         self.eval()
